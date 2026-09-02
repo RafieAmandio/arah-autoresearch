@@ -22,6 +22,10 @@
 
   /* --mute measures 5.37:1 on the ground, so it is legal for body copy. */
   --ink: oklch(18.5% 0 0);
+  /* Long-form body copy. --mute is legal at 5.37:1 but it is a secondary-text
+     tone, and setting thirty thousand characters of findings in it is the
+     "elegant light gray" mistake. This measures about 8:1 on the ground. */
+  --ink-2: oklch(32% 0 0);
   --mute: oklch(50% 0 0);
 
   --line: oklch(18.5% 0 0 / 0.09);
@@ -107,10 +111,22 @@ a {
   margin-inline: auto;
 }
 
+/* Between-space must dominate inside-space or nothing groups. The gap here was
+   --s-4, identical to .card's padding, so the space between two sections read
+   the same as the space inside one and the page became a single undifferentiated
+   column. */
 .stack {
   display: flex;
   flex-direction: column;
-  gap: var(--s-4);
+  gap: var(--s-5);
+}
+
+/* The run page's own rhythm: generous between conceptual bands, tight within
+   them. Four bands, not five slabs. */
+.run {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
 }
 
 main {
@@ -229,6 +245,74 @@ p {
 }
 
 /* --------------------------------------------------------------------------
+   Burndown. The shaded band is the gap between the score and the ceiling,
+   so it reads as what is left to fix and shrinks as the research succeeds.
+   -------------------------------------------------------------------------- */
+
+.burndown {
+  margin: 0;
+}
+
+.burndown svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.burndown-gap {
+  fill: oklch(18.5% 0 0 / 0.055);
+}
+
+.burndown-ceil {
+  stroke: var(--line-strong);
+  stroke-dasharray: 3 4;
+  stroke-width: 1;
+}
+
+.burndown-line {
+  fill: none;
+  stroke: var(--signal-deep);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.burndown-dot {
+  fill: var(--surface);
+  stroke: var(--signal-deep);
+  stroke-width: 2;
+}
+
+/* The one place the lime earns a spot on this chart: a fill, never a stroke. */
+.burndown-dot-last {
+  fill: var(--signal);
+  stroke: var(--signal-deep);
+  stroke-width: 2;
+}
+
+.burndown-axis {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin-top: var(--s-1);
+  color: var(--mute);
+}
+
+.burndown-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+.burndown-swatch {
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: var(--r-key);
+  background: oklch(18.5% 0 0 / 0.055);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+/* --------------------------------------------------------------------------
    Chips. The lime is a fill and never a text colour.
    -------------------------------------------------------------------------- */
 
@@ -301,6 +385,12 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--t-small);
+}
+
+/* Six columns at width:100% inside an overflow-x container will crush rather
+   than scroll: without a floor the browser has no reason to overflow. */
+.table-wide {
+  min-width: 640px;
 }
 
 th {
@@ -387,8 +477,13 @@ td {
 
 .markdown-body {
   font-size: var(--t-small);
-  color: var(--mute);
+  color: var(--ink-2);
   overflow-wrap: break-word;
+  /* The findings log is the most substantive text on the site and was the
+     least readable thing on it: with no cap it ran the full 1100px container,
+     about 140 characters a line. Wider than prose because it carries inline
+     code and identifiers that should not wrap mid-token. */
+  max-width: 74ch;
 }
 
 .markdown-body h1,
@@ -462,5 +557,313 @@ td {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   Run page
+   ========================================================================== */
+
+.run-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.backlink {
+  color: var(--mute);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.backlink:hover {
+  color: var(--ink);
+}
+
+/* Status is aligned to the title's baseline, not to the breadcrumb: the answer
+   to "what is running right now" belongs to the run, not to navigation. */
+.run-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-3);
+}
+
+.run-title h1 {
+  font-size: var(--t-h2);
+}
+
+.run-target {
+  color: var(--mute);
+}
+
+/* --------------------------------------------------------------------------
+   Brief: the frame, on the page ground rather than in two white slabs.
+   -------------------------------------------------------------------------- */
+
+.brief {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: var(--s-4) var(--s-5);
+  align-items: start;
+}
+
+.brief-goal {
+  font-size: var(--t-lede);
+  font-weight: 400;
+  line-height: 1.35;
+  max-width: var(--measure);
+  letter-spacing: -0.01em;
+}
+
+.brief-note {
+  margin-top: var(--s-2);
+  max-width: var(--measure);
+}
+
+/* One continuous set-out line for the whole group. Per-item spines rendered as
+   five disconnected ticks, which reads as a bullet glyph, not a construction
+   line. */
+.constraints {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  font-size: var(--t-small);
+}
+
+.constraints li {
+  color: var(--ink-2);
+}
+
+/* --------------------------------------------------------------------------
+   Scoreboard: the figure on the ground, at size, with the chart beside it.
+   Removing this card entirely did more than restyling five would have.
+   -------------------------------------------------------------------------- */
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: var(--s-4) var(--s-5);
+  align-items: center;
+}
+
+.score-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 0.06em;
+  line-height: 1;
+}
+
+.score-figure .figure {
+  font-size: clamp(4rem, 9vw, 6.5rem);
+}
+
+.score-total {
+  color: var(--mute);
+  font-size: clamp(2rem, 4vw, 3rem) !important;
+}
+
+.score-label {
+  font-size: var(--t-h3);
+  font-weight: 500;
+  margin-top: var(--s-1);
+}
+
+.score-def {
+  margin-top: var(--s-2);
+  max-width: 46ch;
+}
+
+.score-climb {
+  margin-top: var(--s-3);
+  font-size: var(--t-lede);
+  color: var(--ink-2);
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  flex-wrap: wrap;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.delta {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68em;
+  color: var(--mute);
+}
+
+.delta-up {
+  color: var(--signal-deep);
+}
+
+.delta-down {
+  color: var(--danger);
+}
+
+/* --------------------------------------------------------------------------
+   Experiments table
+   -------------------------------------------------------------------------- */
+
+.card-head h3 {
+  font-size: var(--t-h3);
+}
+
+/* Symmetric horizontal padding: cells had zero on the left, so a tinted row sat
+   flush against the first digit and 11.5px short on the right. */
+.exp th,
+.exp td {
+  padding-inline: var(--s-2);
+}
+
+.exp th:first-child,
+.exp td:first-child {
+  padding-inline-start: 0;
+}
+
+.exp th:last-child,
+.exp td:last-child {
+  padding-inline-end: 0;
+}
+
+/* The experiment number folded into the subject: it was costing a whole column
+   to restate the sort order. */
+.expn {
+  color: var(--mute);
+  margin-inline-end: 0.7em;
+}
+
+.c-score .delta {
+  margin-inline-start: 0.45em;
+}
+
+.chip-wrap {
+  white-space: normal;
+  margin-inline-start: var(--s-2);
+}
+
+/* A tint means something is wrong. The newest row does not need one: its
+   position already says it is newest. */
+.row-flag td {
+  background: color-mix(in oklch, var(--danger) 7%, var(--surface));
+}
+
+.empty {
+  padding-block: var(--s-5);
+  text-align: center;
+  color: var(--mute);
+}
+
+/* --------------------------------------------------------------------------
+   Documents. Native disclosure, no JS: two documents totalling ~48,000
+   characters cannot sit open under a five-row table without burying it.
+   -------------------------------------------------------------------------- */
+
+.docs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.doc {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  padding: var(--s-4);
+}
+
+.doc summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-3);
+}
+
+.doc summary::-webkit-details-marker {
+  display: none;
+}
+
+.doc summary::after {
+  content: "read";
+  margin-inline-start: auto;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-micro);
+  color: var(--signal-deep);
+}
+
+.doc[open] summary::after {
+  content: "close";
+}
+
+.doc-title {
+  font-size: var(--t-h3);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.doc[open] .markdown-body {
+  margin-block: var(--s-4) var(--s-3);
+}
+
+.run-foot {
+  max-width: var(--measure);
+}
+
+/* --------------------------------------------------------------------------
+   Narrow viewports. The stylesheet previously had exactly one media query
+   (reduced motion) and no width breakpoints at all, so the six-column table
+   became a horizontal scroller with no affordance on every phone.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .brief,
+  .scoreboard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .run-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* Rows become stacked blocks: the subject takes the full width and the
+     numbers sit under it on one line. No horizontal scroll, nothing off-screen. */
+  .exp.table-wide {
+    min-width: 0;
+  }
+
+  .exp thead {
+    display: none;
+  }
+
+  .exp tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s-1) var(--s-3);
+    padding-block: var(--s-3);
+    border-top: 1px solid var(--line);
+  }
+
+  .exp td {
+    display: block;
+    border: 0;
+    padding: 0;
+    text-align: left;
+  }
+
+  .exp .c-subject {
+    flex: 1 0 100%;
+    min-width: 0;
+  }
+
+  .exp .c-took::before {
+    content: "took ";
+    color: var(--mute);
   }
 }
