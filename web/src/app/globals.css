@@ -1,0 +1,466 @@
+/* ==========================================================================
+   Arah AI: the research log.
+
+   Tokens inherited verbatim from ~/Projects/arah-web so this surface and the
+   marketing site read as one company. Flat light ground, square geometry, set
+   out lines left visible, one saturated colour spent in exactly one place.
+
+   The ground is light for the same reason it is light there: the dark AI lab
+   look is the costume of a company that trains models, which Arah does not.
+
+   No Tailwind here on purpose. This is two pages, and the config it would need
+   is more code than the CSS it would replace.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces. Separation is tonal, never a drawn border. */
+  --void: oklch(96.2% 0 0);
+  --surface: oklch(100% 0 0);
+  --surface-2: oklch(93.2% 0 0);
+
+  /* --mute measures 5.37:1 on the ground, so it is legal for body copy. */
+  --ink: oklch(18.5% 0 0);
+  --mute: oklch(50% 0 0);
+
+  --line: oklch(18.5% 0 0 / 0.09);
+  --line-strong: oklch(18.5% 0 0 / 0.18);
+
+  /* --signal is FILL ONLY: 1.06:1 on the ground makes it invisible as text.
+     Anything that must be read is --signal-deep at 7.99:1. */
+  --signal: oklch(92.87% 0.2255 123);
+  --signal-deep: oklch(40% 0.105 128);
+  --accent-2: oklch(80.96% 0.0936 278.73);
+  --danger: oklch(48% 0.17 25);
+
+  /* Square first. Nothing in the 20-32px band that reads as a generic card. */
+  --r-card: 14px;
+  --r-inner: 8px;
+  --r-key: 4px;
+
+  --e-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --s-1: clamp(0.4rem, 0.5vw, 0.6rem);
+  --s-2: clamp(0.6rem, 0.8vw, 0.9rem);
+  --s-3: clamp(0.9rem, 1.2vw, 1.35rem);
+  --s-4: clamp(1.3rem, 1.9vw, 2.1rem);
+  --s-5: clamp(2rem, 3.2vw, 3.4rem);
+  --s-6: clamp(3.25rem, 5.4vw, 5.75rem);
+
+  --pad: clamp(1.25rem, 4vw, 3.5rem);
+  --wrap-max: 1100px;
+  --measure: 50ch;
+
+  --t-micro: clamp(0.72rem, 0.78vw, 0.8rem);
+  --t-small: clamp(0.9rem, 0.95vw, 0.97rem);
+  --t-body: clamp(1rem, 0.25vw + 0.88rem, 1.06rem);
+  --t-lede: clamp(1.25rem, 0.5vw + 1.1rem, 1.4rem);
+  --t-h3: clamp(1.6rem, 0.9vw + 1.25rem, 1.85rem);
+  --t-h2: clamp(2rem, 1.13vw + 1.56rem, 2.9rem);
+  --t-h1: clamp(2.5rem, 3.4vw + 1.05rem, 4.2rem);
+  --t-figure: clamp(2.6rem, 4.2vw, 3.9rem);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: var(--t-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-variant-ligatures: common-ligatures contextual;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--signal-deep);
+  outline-offset: 2px;
+  border-radius: var(--r-key);
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+a {
+  color: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   Layout
+   -------------------------------------------------------------------------- */
+
+.wrap {
+  width: min(var(--wrap-max), 100% - 2 * var(--pad));
+  margin-inline: auto;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+main {
+  padding-block: var(--s-5) var(--s-6);
+}
+
+/* The set out line: a site plan's construction line, kept visible. It is
+   decoration that happens to be structure. */
+.spine {
+  position: relative;
+  padding-left: var(--s-3);
+}
+
+.spine::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.4em;
+  bottom: 0.2em;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+/* --------------------------------------------------------------------------
+   Type
+   -------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--t-h1);
+  line-height: 1.02;
+}
+
+h2 {
+  font-size: var(--t-h2);
+  line-height: 1.08;
+}
+
+h3 {
+  font-size: var(--t-h3);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.prose {
+  max-width: var(--measure);
+  color: var(--mute);
+}
+
+.lede {
+  font-size: var(--t-lede);
+  color: var(--mute);
+  max-width: var(--measure);
+  line-height: 1.45;
+}
+
+/* Micro labels only, 11 to 13px, short uppercase strings. */
+.eyebrow {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+}
+
+.mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-micro);
+  font-weight: 500;
+}
+
+.small {
+  font-size: var(--t-small);
+  color: var(--mute);
+}
+
+/* --------------------------------------------------------------------------
+   Surfaces
+   -------------------------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  padding: var(--s-4);
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.figure {
+  font-size: var(--t-figure);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Chips. The lime is a fill and never a text colour.
+   -------------------------------------------------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.25em 0.6em;
+  border-radius: var(--r-key);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-micro);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chip-live {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+.chip-up {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+.chip-down {
+  background: color-mix(in oklch, var(--danger) 14%, var(--surface));
+  color: var(--danger);
+}
+
+.chip-ghost {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--mute);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
+  flex: none;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.pulse {
+  animation: pulse 1.8s var(--e-expo) infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Table. A list with hairlines, not a card grid.
+   -------------------------------------------------------------------------- */
+
+.scroll-x {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-small);
+}
+
+th {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  text-align: left;
+  padding: 0 var(--s-2) var(--s-2) 0;
+  white-space: nowrap;
+}
+
+td {
+  padding: var(--s-2) var(--s-2) var(--s-2) 0;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.row-new {
+  background: color-mix(in oklch, var(--signal) 22%, var(--surface));
+}
+
+.sha {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-micro);
+  color: var(--signal-deep);
+  text-decoration: none;
+}
+
+.sha:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Steps
+   -------------------------------------------------------------------------- */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--s-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.step {
+  background: var(--surface);
+  border-radius: var(--r-inner);
+  padding: var(--s-3);
+}
+
+.runlist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.runlink {
+  display: block;
+  text-decoration: none;
+  background: var(--surface);
+  border-radius: var(--r-card);
+  padding: var(--s-4);
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: box-shadow 0.2s var(--e-expo);
+}
+
+.runlink:hover {
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+/* --------------------------------------------------------------------------
+   GitHub-rendered markdown. The HTML arrives sanitized from the contents
+   endpoint, which is why this app has no markdown dependency.
+   -------------------------------------------------------------------------- */
+
+.markdown-body {
+  font-size: var(--t-small);
+  color: var(--mute);
+  overflow-wrap: break-word;
+}
+
+.markdown-body h1,
+.markdown-body h2 {
+  font-size: var(--t-h3);
+  color: var(--ink);
+  margin: 1.6em 0 0.5em;
+}
+
+.markdown-body h3 {
+  font-size: var(--t-body);
+  font-weight: 600;
+  color: var(--ink);
+  margin: 1.4em 0 0.4em;
+}
+
+.markdown-body p,
+.markdown-body li {
+  margin: 0.5em 0;
+  line-height: 1.6;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.2em;
+  list-style: revert;
+}
+
+.markdown-body code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.88em;
+  background: var(--surface-2);
+  padding: 0.1em 0.35em;
+  border-radius: var(--r-key);
+}
+
+.markdown-body pre {
+  background: var(--ink);
+  color: var(--surface);
+  padding: 1em;
+  border-radius: var(--r-inner);
+  overflow-x: auto;
+}
+
+.markdown-body pre code {
+  background: none;
+  padding: 0;
+}
+
+.markdown-body a {
+  color: var(--signal-deep);
+}
+
+.markdown-body table {
+  font-size: var(--t-micro);
+}
+
+.markdown-body .anchor,
+.markdown-body .octicon {
+  display: none;
+}
+
+.markdown-body img {
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
