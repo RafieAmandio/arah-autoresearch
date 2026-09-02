@@ -81,6 +81,11 @@ export default function RunPage({
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
           {!d ? (
             <span className="chip chip-ghost">connecting</span>
+          ) : d.source === "snapshot" ? (
+            /* A snapshot carries whatever status was true when it was taken.
+               Replaying that as "running" would be a live claim about a dead
+               loop, so the provenance replaces the status rather than joining it. */
+            <span className="chip chip-ghost">offline snapshot</span>
           ) : d.status === "running" ? (
             <span className="chip chip-live">
               <span className="dot pulse" />

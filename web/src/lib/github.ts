@@ -72,7 +72,9 @@ function toExperiment(c: {
     n: Number(t.Experiment),
     sha: c.sha,
     short: c.sha.slice(0, 7),
-    subject: c.commit.message.split("\n")[0],
+    // The subject is the agent's own words. Only markdown emphasis is stripped,
+    // because it arrives as literal asterisks in a plain-text table cell.
+    subject: c.commit.message.split("\n")[0].replace(/\*\*/g, ""),
     score: Number.isFinite(score) ? score : 0,
     total: Number.isFinite(total) ? total : 0,
     delta: Number(t.Delta ?? 0),

@@ -23,8 +23,13 @@ const TTL_MS = (process.env.GITHUB_TOKEN ? 20 : 90) * 1000;
 const fresh = (d: RunData | undefined): d is RunData =>
   !!d && Date.now() - Date.parse(d.fetchedAt) < TTL_MS;
 
+/* Through `unknown` on purpose. A populated snapshot infers literal string
+   types for the union fields (`result`, `status`), which do not overlap the
+   declared ones, so a direct assertion fails to compile the moment the file
+   stops being empty. That is a build break discovered at refresh time, which
+   is the worst possible time to discover it. */
 const snap = (id: string): RunData | undefined =>
-  (snapshot as Record<string, RunData>)[id];
+  (snapshot as unknown as Record<string, RunData>)[id];
 
 export async function GET(
   req: Request,
