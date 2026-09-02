@@ -1,0 +1,29 @@
+{
+  "id": "alphaclimate",
+  "label": "Catastrophe loss engine",
+  "target": "~/Projects/alphaclimate",
+  "program": "research/program.md",
+  "eval": ["python3", "-B", "research/invariants.py"],
+  "editable": [
+    "api/app/engine.py",
+    "api/app/finance.py",
+    "api/app/compute.py"
+  ],
+  "frozen": [
+    "research/invariants.py",
+    "research/program.md",
+    "tests/",
+    "data/",
+    "api/app/hazard.py",
+    "api/app/curves.py",
+    "api/app/portfolio.py",
+    "api/app/protection.py",
+    "api/app/__init__.py"
+  ],
+  "branch": "autoresearch",
+  "budget_s": 900,
+  "eval_timeout_s": 120,
+  "experiments": 12,
+  "model": "opus",
+  "max_budget_usd": 6.0
+}
