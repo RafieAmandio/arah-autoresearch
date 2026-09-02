@@ -4,6 +4,19 @@ import { fetchRun, type RunData } from "@/lib/github";
 import snapshot from "@/snapshot.json";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+/* `force-dynamic` governs how the route renders, not what happens to the
+   response afterwards. Without an explicit no-store the edge cached the JSON
+   and served the same `fetchedAt` for as long as it liked, so the page froze
+   at two experiments while five were live on GitHub. The TTL that bounds
+   upstream calls has to live in this process, not in a CDN we cannot see. */
+const NO_STORE = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+} as const;
+
+const json = (body: unknown, status = 200) =>
+  NextResponse.json(body, { status, headers: NO_STORE });
 
 /* Last good answer per run. Best-effort on serverless, where each instance
    keeps its own; the committed snapshot is the guaranteed floor underneath.
@@ -37,30 +50,30 @@ export async function GET(
 ) {
   const { id } = await params;
   const run = runById(id);
-  if (!run) return NextResponse.json({ error: "unknown run" }, { status: 404 });
+  if (!run) return json({ error: "unknown run" }, 404);
 
   /* The demo switch. ?offline=1 forces the committed snapshot so a venue's
      network is never a variable in front of a client. */
   if (new URL(req.url).searchParams.get("offline")) {
     const s = snap(id);
-    if (s) return NextResponse.json({ ...s, source: "snapshot" });
+    if (s) return json({ ...s, source: "snapshot" });
   }
 
   const cachedFresh = lastGood.get(id);
-  if (fresh(cachedFresh)) return NextResponse.json(cachedFresh);
+  if (fresh(cachedFresh)) return json(cachedFresh);
 
   try {
     const data: RunData = { ...(await fetchRun(run)), source: "github" };
     lastGood.set(id, data);
-    return NextResponse.json(data);
+    return json(data);
   } catch {
     /* Stale beats blank in front of a client: last good answer, then the
        committed snapshot, then an honest empty run. */
     const cached = lastGood.get(id);
-    if (cached) return NextResponse.json({ ...cached, source: "stale" });
+    if (cached) return json({ ...cached, source: "stale" });
     const s = snap(id);
-    if (s) return NextResponse.json({ ...s, source: "snapshot" });
-    return NextResponse.json({
+    if (s) return json({ ...s, source: "snapshot" });
+    return json({
       run,
       experiments: [],
       head: null,

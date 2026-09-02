@@ -35,7 +35,7 @@ export default function RunPage({
   React.useEffect(() => {
     let live = true;
     const tick = () =>
-      fetch(`/api/runs/${runId}${location.search}`)
+      fetch(`/api/runs/${runId}${location.search}`, { cache: "no-store" })
         .then((r) => r.json())
         .then((j) => {
           if (live) setD(j);
