@@ -96,7 +96,7 @@ async function markdown(run: Run, path: string): Promise<string | null> {
     const r = await gh(
       `https://api.github.com/repos/${run.owner}/${run.repo}/contents/${path}?ref=${run.branch}`,
       "application/vnd.github.html",
-      300,
+      MARKDOWN_TTL,
     );
     return await r.text();
   } catch {
@@ -104,13 +104,21 @@ async function markdown(run: Run, path: string): Promise<string | null> {
   }
 }
 
+/* Upstream calls per refresh: one for the commits, two for the markdown. The
+   markdown is a steering document and a findings log, which change at most
+   once per experiment, so they get a long window. Unauthenticated GitHub
+   allows 60 requests an hour per IP, and this keeps the whole page well
+   inside that even with no token. */
+export const COMMITS_TTL = 20;
+export const MARKDOWN_TTL = 900;
+
 export async function fetchRun(run: Run): Promise<Omit<RunData, "source">> {
   // One call for the whole curve: the trailers make every score parseable from
   // the commit list alone, so there is no per-commit request.
   const commits = (await gh(
     `https://api.github.com/repos/${run.owner}/${run.repo}/commits?sha=${run.branch}&per_page=100`,
     "application/vnd.github+json",
-    20,
+    COMMITS_TTL,
   ).then((r) => r.json())) as Parameters<typeof toExperiment>[0][];
 
   const experiments = commits

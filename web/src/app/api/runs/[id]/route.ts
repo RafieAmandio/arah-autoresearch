@@ -6,8 +6,22 @@ import snapshot from "@/snapshot.json";
 export const dynamic = "force-dynamic";
 
 /* Last good answer per run. Best-effort on serverless, where each instance
-   keeps its own; the committed snapshot is the guaranteed floor underneath. */
+   keeps its own; the committed snapshot is the guaranteed floor underneath.
+
+   This is an explicit TTL rather than `next: { revalidate }` alone, for two
+   reasons: it bounds upstream calls whatever the framework's cache is doing
+   under `force-dynamic`, and it is the thing that can serve a stale answer
+   through a 403, which `revalidate` cannot. Serving the last good answer
+   through a rate limit is the single most valuable property this route has. */
 const lastGood = new Map<string, RunData>();
+
+/* Without a token GitHub allows 60 requests an hour per IP, and serverless
+   egress addresses are shared, so the budget may be partly spent before we
+   arrive. 90 seconds keeps the commit poll near 40/hr. */
+const TTL_MS = (process.env.GITHUB_TOKEN ? 20 : 90) * 1000;
+
+const fresh = (d: RunData | undefined): d is RunData =>
+  !!d && Date.now() - Date.parse(d.fetchedAt) < TTL_MS;
 
 const snap = (id: string): RunData | undefined =>
   (snapshot as Record<string, RunData>)[id];
@@ -26,6 +40,9 @@ export async function GET(
     const s = snap(id);
     if (s) return NextResponse.json({ ...s, source: "snapshot" });
   }
+
+  const cachedFresh = lastGood.get(id);
+  if (fresh(cachedFresh)) return NextResponse.json(cachedFresh);
 
   try {
     const data: RunData = { ...(await fetchRun(run)), source: "github" };

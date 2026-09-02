@@ -33,13 +33,13 @@ export const RUNS: Run[] = [
       "One fixed wall-clock budget per experiment. No extensions.",
       "Every experiment is one public commit, including the failures.",
     ],
-    owner: "RafieAmandio",
+    owner: "Arah-AI",
     repo: "alphaclimate",
     branch: "autoresearch",
     program: "research/program.md",
     findings: "research/FINDINGS.md",
     budgetSeconds: 900,
-    target: "RafieAmandio/alphaclimate — api/app/{engine,finance,compute}.py",
+    target: "Arah-AI/alphaclimate · api/app/{engine,finance,compute}.py",
   },
 ];
 

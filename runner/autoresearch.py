@@ -96,25 +96,50 @@ def run_agent(cfg, target, prompt, budget):
     return text.strip(), timed_out
 
 
+def clean_subject(line, n):
+    """One line of plain text, cut on a word boundary.
+
+    The agent writes markdown, and a commit subject that ends mid-word reads
+    as a truncation bug to anyone browsing the history.
+    """
+    s = re.sub(r"[`*_\r\n]", "", line).strip(" .:-")
+    s = re.sub(r"\s+", " ", s)
+    if len(s) > 72:
+        cut = s[:72].rsplit(" ", 1)[0]
+        s = (cut or s[:72]).rstrip(" ,;:") + "…"
+    return s or "experiment {}".format(n)
+
+
 def split_report(text, n):
     """Split the agent's final message into a commit subject and findings.
 
-    The subject is the first meaningful line; the findings are whatever sits
-    under a `## Findings` heading. Both are the agent's own words.
+    Prefers an explicit `## Summary` block, because a free-form first line is
+    as often "Done." as it is a description of the change. Falls back to the
+    first meaningful line.
     """
     findings = ""
     m = re.search(r"^#{1,3}\s*Findings\s*$", text, re.M | re.I)
     if m:
         findings = text[m.end():].strip()
         text = text[:m.start()].strip()
-    subject = ""
-    for line in text.splitlines():
-        line = line.strip().lstrip("#").strip()
-        if line and not line.startswith("```"):
-            subject = line
-            break
-    subject = re.sub(r"[`\r\n]", " ", subject).strip(" .")
-    return (subject[:72] or "experiment {}".format(n)), findings
+
+    summary = ""
+    m = re.search(r"^#{1,3}\s*Summary\s*$", text, re.M | re.I)
+    if m:
+        for line in text[m.end():].splitlines():
+            if line.strip():
+                summary = line
+                break
+        text = text[:m.start()].strip()
+
+    if not summary:
+        for line in text.splitlines():
+            stripped = line.strip().lstrip("#").strip()
+            if stripped and not stripped.startswith("```"):
+                summary = stripped
+                break
+
+    return clean_subject(summary, n), findings
 
 
 def restore_frozen(target, frozen, ref):
@@ -193,6 +218,15 @@ def main():
     prev = json.loads(done[-1].read_text()) if done else None
     if prev:
         print("resuming after experiment {} ({}/{})".format(n, prev["score"], prev["total"]))
+    else:
+        # Score the untouched tree first. Without this the first experiment has
+        # nothing to diff against, so a real gain is recorded as a delta of zero
+        # and the run reads as flat when it was not.
+        base = score(cfg, target, 0)
+        prev = {"n": 0, "subject": "baseline", "result": "baseline",
+                "score": base.get("score", 0), "total": base.get("total") or 0,
+                "checks": base.get("checks", [])}
+        print("baseline {}/{}".format(prev["score"], prev["total"]))
 
     for _ in range(args.experiments or cfg["experiments"]):
         n += 1
