@@ -486,12 +486,23 @@ td {
   max-width: 74ch;
 }
 
+/* Entry headings inside a document, not page titles. At --t-h3 a findings
+   sub-heading out-typed the section heading above it and came close to the
+   page h1, which inverts the hierarchy of the whole card. */
 .markdown-body h1,
 .markdown-body h2 {
-  font-size: var(--t-h3);
+  font-size: var(--t-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--ink);
-  margin: 1.6em 0 0.5em;
+  margin: 2.2em 0 0.6em;
+  padding-top: 1em;
+  border-top: 1px solid var(--line);
 }
+
+/* GitHub returns its own <article class="markdown-body"> nested inside this
+   wrapper, so a :first-child reset would not match the heading. The rule above
+   the first entry reads as the divider under the summary instead. */
 
 .markdown-body h3 {
   font-size: var(--t-body);
@@ -657,13 +668,22 @@ td {
   line-height: 1;
 }
 
-.score-figure .figure {
-  font-size: clamp(4rem, 9vw, 6.5rem);
+/* Ceiling at 6rem: the page states the number, it does not shout it. */
+.score-value {
+  font-size: clamp(4rem, 9vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .score-total {
+  font-size: clamp(1.75rem, 3.6vw, 2.6rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
   color: var(--mute);
-  font-size: clamp(2rem, 4vw, 3rem) !important;
+  font-variant-numeric: tabular-nums;
 }
 
 .score-label {

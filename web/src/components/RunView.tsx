@@ -112,8 +112,8 @@ export function RunView({ run, initial }: { run: Run; initial: RunData | null })
       <section className="scoreboard">
         <div className="score">
           <p className="score-figure">
-            <span className="figure">{head?.score ?? "—"}</span>
-            <span className="figure score-total">/{total || "—"}</span>
+            <span className="score-value">{head?.score ?? "—"}</span>
+            <span className="score-total">/{total || "—"}</span>
           </p>
           <h3 className="score-label">invariants held</h3>
           <p className="small score-def">
