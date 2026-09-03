@@ -435,19 +435,32 @@ td {
    Steps
    -------------------------------------------------------------------------- */
 
+/* Four steps of a real sequence, so the numbering carries information rather
+   than decorating. Not four white cards: a measured run of columns under a
+   set-out rule, which is the marketing site's own device and one fewer slab. */
 .steps {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: var(--s-2);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--s-4);
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .step {
-  background: var(--surface);
-  border-radius: var(--r-inner);
-  padding: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line-strong);
+}
+
+/* The readable green, not the lime: at 1.06:1 on this ground a 3px lime mark
+   would be invisible, which is exactly why the brand calls it fill-only. */
+.step::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 3px;
+  margin-bottom: var(--s-2);
+  background: var(--signal-deep);
 }
 
 .runlist {
