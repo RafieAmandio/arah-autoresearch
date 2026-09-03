@@ -236,14 +236,6 @@ p {
   flex-wrap: wrap;
 }
 
-.figure {
-  font-size: var(--t-figure);
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
 /* --------------------------------------------------------------------------
    Burndown. The shaded band is the gap between the score and the ceiling,
    so it reads as what is left to fix and shrinks as the research succeeds.
@@ -335,11 +327,6 @@ p {
   color: var(--ink);
 }
 
-.chip-up {
-  background: var(--signal);
-  color: var(--ink);
-}
-
 .chip-down {
   background: color-mix(in oklch, var(--danger) 14%, var(--surface));
   color: var(--danger);
@@ -414,10 +401,6 @@ td {
 .num {
   text-align: right;
   font-variant-numeric: tabular-nums;
-}
-
-.row-new {
-  background: color-mix(in oklch, var(--signal) 22%, var(--surface));
 }
 
 .sha {
